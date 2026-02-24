@@ -71,6 +71,9 @@ public class Events implements Listener {
         PlayerData playerData = DataManager.getPlayerData(event.getPlayer().getUniqueId());
         long lastSeen = playerData.getLastSeen();
         playerData.setLastSeen(System.currentTimeMillis());
+        if (playerData.getPlayerName() == null) {
+            playerData.setPlayerName(event.getPlayer().getName());
+        }
 
         if (System.currentTimeMillis() - lastSeen > 1000 * 60) {
             // update player data if they have been online for more than a minute
