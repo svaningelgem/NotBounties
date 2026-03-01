@@ -20,11 +20,7 @@ import me.jadenp.notbounties.data.Whitelist;
 import me.jadenp.notbounties.features.challenges.ChallengeManager;
 import me.jadenp.notbounties.features.settings.integrations.external_api.LocalTime;
 import me.jadenp.notbounties.features.settings.integrations.external_api.PlaceholderAPIClass;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -363,7 +359,8 @@ public class LanguageOptions {
 
     public static String parse(String str, OfflinePlayer receiver) {
         if (receiver != null) {
-            str = str.replace("{sort_type}", GUI.getActiveSortType(receiver.getUniqueId()));
+            str = str.replace("{sort_type_name}", GUI.getActiveSortTypeName(receiver.getUniqueId()))
+                    .replace("{sort_type}", GUI.getActiveSortType(receiver.getUniqueId()) + "");
         }
         if (str.contains("{time}")) {
             String timeString = formatTime(System.currentTimeMillis(), LocalTime.TimeFormat.PLAYER, receiver.getPlayer());
@@ -441,7 +438,8 @@ public class LanguageOptions {
             if (receiver.isOnline() && GUI.playerInfo.containsKey(receiver.getUniqueId())) {
                 PlayerGUInfo info = GUI.playerInfo.get(receiver.getUniqueId());
                 str = str.replace("{page}", info.page() + "")
-                        .replace("{page_max}", info.maxPage() + "");
+                        .replace("{page_max}", info.maxPage() + "")
+                        .replace("{gui}", info.guiType());
 
                 // check for {player<x>}
                 while (str.contains("{player") && str.substring(str.indexOf("{player")).contains("}")) {

@@ -194,7 +194,8 @@ permission-immunity-bounty: '&cYou are immune to all bounties due to a permissio
 permission-immunity-random: '&cYou are immune to random bounties due to a permission.'
 permission-immunity-murder: '&cYou are immune to murder bounties due to a permission.'
 permission-immunity-timed: '&cYou are immune to timed bounties due to a permission.'
-sort-change: '&eYour sort type for &f{gui} &ehas been changed to &f{sort_type}&e.'
+sort-change: '&eYour sort type for &f{gui} &ehas been changed to &f{sort_type_name}&e.'
+bounty-list-title: '&7&m               &r &d&lBounties &9&lPage {page} &7&m               '
 # These are the text that replaces the {sort_type}/{sort_type_(gui)} placeholder in this file and for the %notbounties_sort_(gui)% placeholder
 sort-type:
   bounty:

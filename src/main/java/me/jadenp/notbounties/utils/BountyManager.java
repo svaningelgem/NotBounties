@@ -11,7 +11,6 @@ import me.jadenp.notbounties.data.player_data.PlayerData;
 import me.jadenp.notbounties.data.player_data.RewardHead;
 import me.jadenp.notbounties.features.settings.auto_bounties.BigBounty;
 import me.jadenp.notbounties.features.settings.databases.proxy.ProxyDatabase;
-import me.jadenp.notbounties.features.settings.databases.proxy.ProxyMessaging;
 import me.jadenp.notbounties.features.settings.display.BountyHunt;
 import me.jadenp.notbounties.features.settings.display.BountyTracker;
 import me.jadenp.notbounties.features.settings.display.WantedTags;
@@ -22,7 +21,6 @@ import me.jadenp.notbounties.features.settings.money.NumberFormatting;
 import me.jadenp.notbounties.ui.Head;
 import me.jadenp.notbounties.ui.SkinManager;
 import me.jadenp.notbounties.ui.gui.GUI;
-import me.jadenp.notbounties.ui.gui.GUIOptions;
 import me.jadenp.notbounties.features.settings.auto_bounties.TrickleBounties;
 import me.jadenp.notbounties.utils.tasks.BroadcastTask;
 import me.jadenp.notbounties.utils.tasks.DelayedReward;
@@ -31,10 +29,6 @@ import me.jadenp.notbounties.features.settings.auto_bounties.MurderBounties;
 import me.jadenp.notbounties.features.settings.auto_bounties.TimedBounties;
 import me.jadenp.notbounties.features.settings.integrations.external_api.LocalTime;
 import me.jadenp.notbounties.features.settings.integrations.external_api.MMOLibClass;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -46,7 +40,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.*;
 
@@ -62,22 +55,17 @@ public class BountyManager {
     private BountyManager(){}
 
     public static void listBounties(CommandSender sender, int page) {
-        GUIOptions guiOptions = GUI.getGUI("bounty-gui");
-        String title = "";
-        if (guiOptions != null) {
-            title = guiOptions.getName();
-            if (guiOptions.isAddPage())
-                title += " " + (page + 1);
-        }
-        sender.sendMessage(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "               " + ChatColor.RESET + " " + title + " " + ChatColor.GRAY + ChatColor.STRIKETHROUGH + "               ");
+        String title = LanguageOptions.getMessage("bounty-list-title").replace("{page}", page + 1 + "");
         int sortType;
-        if (guiOptions == null) {
-            sortType = 2;
-        } else if (sender instanceof Player player) {
+        Player parser = null;
+        if (sender instanceof Player player) {
             sortType = DataManager.getPlayerData(player.getUniqueId()).getGUISortType("bounty-gui");
+            parser = player;
         } else {
-            sortType = guiOptions.getSortType();
+            sortType = 2;
         }
+        title = parse(title, parser);
+        sender.sendMessage(title);
         List<Bounty> sortedList = getAllBounties(sortType);
         for (int i = page * BOUNTY_LIST_LENGTH; i < (page * BOUNTY_LIST_LENGTH) + BOUNTY_LIST_LENGTH; i++) {
             if (sortedList.size() > i) {
@@ -87,30 +75,7 @@ public class BountyManager {
             }
         }
 
-        TextComponent rightArrow = new TextComponent(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "⋙⋙⋙");
-        rightArrow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + ConfigOptions.getPluginBountyCommands().get(0) + " list " + page + 2));
-        rightArrow.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(net.md_5.bungee.api.ChatColor.of(new Color(232, 26, 225)) + "Next Page")));
-        TextComponent leftArrow = new TextComponent(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "⋘⋘⋘");
-        leftArrow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + ConfigOptions.getPluginBountyCommands().get(0) + " list " + page));
-        leftArrow.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(net.md_5.bungee.api.ChatColor.of(new Color(232, 26, 225)) + "Last Page")));
-        TextComponent space = new TextComponent(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "                        ");
-        TextComponent titleFill = new TextComponent(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + " ".repeat(title.length()));
-        TextComponent replacement = new TextComponent(ChatColor.GRAY + "" + ChatColor.STRIKETHROUGH + "    ");
-
-        TextComponent start = new TextComponent("");
-        if (page > 0) {
-            start.addExtra(leftArrow);
-        } else {
-            start.addExtra(replacement);
-        }
-        start.addExtra(space);
-        start.addExtra(titleFill);
-        if (sortedList.size() > (page * BOUNTY_LIST_LENGTH) + BOUNTY_LIST_LENGTH) {
-            start.addExtra(rightArrow);
-        } else {
-            start.addExtra(replacement);
-        }
-        sender.spigot().sendMessage(start);
+        Tutorial.sendUnifiedPageLine(sender, page + 1, parser, page, page + 2, "list", (int) Math.ceil(((double) sortedList.size()) / BOUNTY_LIST_LENGTH) + 1);
     }
 
 

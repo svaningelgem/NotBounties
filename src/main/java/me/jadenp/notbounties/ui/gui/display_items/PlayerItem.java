@@ -34,7 +34,7 @@ public class PlayerItem implements DisplayItem, AmountItem{
     private final String name;
 
     @Override
-    public ItemStack getFormattedItem(Player player, String headName, List<String> lore, int customModelData, String itemModel) {
+    public ItemStack getFormattedItem(Player player, String headName, List<String> lore, int customModelData, String itemModel, String guiType) {
         ItemStack item = HeadFetcher.getUnloadedHead(uuid);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         if (meta == null)

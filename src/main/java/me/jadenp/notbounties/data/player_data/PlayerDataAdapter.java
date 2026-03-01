@@ -15,12 +15,8 @@ public class PlayerDataAdapter extends TypeAdapter<PlayerData> {
 
     @Override
     public void write(JsonWriter jsonWriter, PlayerData playerData) throws IOException {
-        if (playerData == null) {
+        if (playerData == null || playerData.getPlayerName() == null) {
             jsonWriter.nullValue();
-            return;
-        }
-        if (playerData.getPlayerName() == null) {
-            // uninitialized player
             return;
         }
         jsonWriter.beginObject();

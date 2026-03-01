@@ -71,6 +71,17 @@ import static me.jadenp.notbounties.features.LanguageOptions.*;
  * 1.21.6 dialog
  * Option to send api request when setting a bounty on offline player
  * bounty hunt option to split the bounty between participants
+ * Bounty broadcast and other messages over proxy/redis
+ *
+ * GUI Sort type (and custom item) x
+ * papi and player names in custom heads x
+ * data saves x
+ * konquest hook x
+ * bounty rank placeholder x
+ * currency commands run when using vault x
+ * bounty claim permission x
+ * bounty list changes
+ * ping dren on update
  */
 public final class NotBounties extends JavaPlugin {
 
@@ -257,9 +268,9 @@ public final class NotBounties extends JavaPlugin {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                    }, 10_000); // 10s timeout
+                    }, 20_000); // 20s timeout
                 } catch (TimeoutException te) {
-                    plugin.getLogger().warning("Save timed out after 10s; will retry later.");
+                    plugin.getLogger().warning("Save timed out after 20s; will retry later.");
                 } catch (Exception e) {
                     plugin.getLogger().severe("Save failed: " + e.getMessage());
                 }

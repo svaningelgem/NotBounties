@@ -37,7 +37,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -193,6 +192,10 @@ public class GUI implements Listener {
         return null;
     }
 
+    public static Set<String> getGUITypes() {
+        return customGuis.keySet();
+    }
+
     public static int getMaxBountyItemSlots() {
         if (customGuis.containsKey("bounty-item-select")) {
             return customGuis.get("bounty-item-select").getPlayerSlots().size() - 1;
@@ -291,7 +294,7 @@ public class GUI implements Listener {
 
                                     if (NumberFormatting.getCurrency().size() == 1 && !NumberFormatting.shouldUseDecimals()) {
                                         // change material and amount (possible multiple items) to represent a physical item
-                                        ItemStack item = getGeneralCurrencyItem().getFormattedItem(player, null);
+                                        ItemStack item = getGeneralCurrencyItem().getFormattedItem(player, null, name);
                                         try {
                                             Material material = Material.valueOf(NumberFormatting.getCurrency().get(0).toUpperCase());
                                             item.setType(material);
@@ -971,12 +974,20 @@ public class GUI implements Listener {
      * @param uuid Player to check
      * @return Sort type of the GUI, or "default" if no GUI is open.
      */
-    public static String getActiveSortType(UUID uuid) {
+    public static String getActiveSortTypeName(UUID uuid) {
         if (playerInfo.containsKey(uuid)) {
             PlayerGUInfo info = playerInfo.get(uuid);
             return parseSortType(info.guiType(),DataManager.getPlayerData(uuid).getGUISortType(info.guiType()));
         }
         return LanguageOptions.getMessage("sort-type.player.-1");
+    }
+
+    public static int getActiveSortType(UUID uuid) {
+        if (playerInfo.containsKey(uuid)) {
+            PlayerGUInfo info = playerInfo.get(uuid);
+            return DataManager.getPlayerData(uuid).getGUISortType(info.guiType());
+        }
+        return -1;
     }
 
     /**

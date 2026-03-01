@@ -272,6 +272,17 @@ custom-items:
   next-challenge:
     material: CLOCK
     name: '&f&lNext Challenges in &e{next_challenges}'
+  change-bounty-sort:
+    material: BOOKSHELF
+    name: '&eClick to Change Sort Type'
+    lore:
+      - ''
+      - '&7Current sort type:'
+      - '&f{sort_type_name}'
+      - ''
+    commands:
+      - 'notbountiesadmin {player} sort {gui} toggle'
+      - '[gui] bounty-gui 1'
   # this item is used to represent currency in the view-bounty GUI
   general-currency-item:
     material: SUNFLOWER

@@ -105,7 +105,7 @@ public class Challenge {
      * @return An ItemStack with a formatted name and lore.
      */
     public ItemStack getItem(OfflinePlayer player, double start, double progress, double total, int variationIndex, boolean canClaim) {
-        ItemStack itemStack = guiItem.getFormattedItem(player, null);
+        ItemStack itemStack = guiItem.getFormattedItem(player, null, "challenges");
         if (itemStack.getItemMeta() == null)
             return itemStack;
         ItemMeta meta = itemStack.getItemMeta();

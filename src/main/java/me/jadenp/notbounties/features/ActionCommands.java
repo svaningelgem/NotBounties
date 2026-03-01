@@ -149,17 +149,18 @@ public class ActionCommands {
         String bountyItems = bounty != null ? NumberFormatting.listItems(bounty.getTotalItemBounty(), ':') : "";
         String killerName = killer != null ? killer.getName() : "";
 
-        command = command.replace("{viewer}", playerName);
-        command = command.replace("{player}", playerName);
-        command = command.replace("{killer}", (killerName));
-        command = command.replace("{amount}", (NumberFormatting.getValue(totalBounty)));
-        command = command.replace("{bounty}", (NumberFormatting.formatNumber(totalBounty)));
-        command = command.replace("{bounty_currency}", (NumberFormatting.formatNumber(bountyCurrency)));
-        command = command.replace("{bounty_item_values}", (NumberFormatting.formatNumber(bountyItemValues)));
-        command = command.replace("{bounty_items}", (bountyItems));
-        command = command.replace("{cost}", (NumberFormatting.getCurrencyPrefix() + NumberFormatting.formatNumber(totalBounty) + NumberFormatting.getCurrencySuffix()));
+        command = command.replace("{viewer}", playerName)
+                .replace("{player}", playerName)
+                .replace("{killer}", (killerName))
+                .replace("{amount}", (NumberFormatting.getValue(totalBounty)))
+                .replace("{bounty}", (NumberFormatting.formatNumber(totalBounty)))
+                .replace("{bounty_currency}", (NumberFormatting.formatNumber(bountyCurrency)))
+                .replace("{bounty_item_values}", (NumberFormatting.formatNumber(bountyItemValues)))
+                .replace("{bounty_items}", (bountyItems))
+                .replace("{cost}", (NumberFormatting.getCurrencyPrefix() + NumberFormatting.formatNumber(totalBounty) + NumberFormatting.getCurrencySuffix()));
         if (info != null)
-            command = command.replace("{page}", (info.page() + ""));
+            command = command.replace("{page}", info.page() + "")
+                    .replace("{gui}", info.guiType());
         command = command.replace("{min_bounty}", getValue(ConfigOptions.getMoney().getMinBounty()));
         if (info != null && info.data().length > 0) {
             assert player != null;

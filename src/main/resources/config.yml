@@ -84,7 +84,7 @@ pvp-restrictions:
     # time in seconds that a player must be without combat to log out without losing their bounty - 0 to disable
     time: 0
     # send the combat-tag and combat-safe messages when they are tagged
-    send-message: false
+    send-message: true
     # override the death tax for this combat log
     # -1 to disable
     death-tax-override: -1

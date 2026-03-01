@@ -66,7 +66,8 @@ public class SaveManager {
                         DataManager.getAndSyncDatabase(database.getDatabase());
                     }
                 }
-                saveUnsentProxyMessages(dataDirectory);
+                if (ProxyMessaging.hasConnectedBefore())
+                    saveUnsentProxyMessages(dataDirectory);
             }
 
             // the three amigos
@@ -156,6 +157,8 @@ public class SaveManager {
             Set<PlayerData> playerDataList = DataManager.getLocalPlayerData();
             NotBounties.debugMessage("Saving " + playerDataList.size() + " player data.", false);
             for (PlayerData playerData : playerDataList) {
+                if (playerData == null || playerData.getPlayerName() == null)
+                    continue;
                 writer.beginObject();
                 writer.name("data");
                 adapter.write(writer, playerData);

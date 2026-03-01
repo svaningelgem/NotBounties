@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import me.jadenp.notbounties.NotBounties;
 import me.jadenp.notbounties.features.LanguageOptions;
 import me.jadenp.notbounties.ui.Head;
+import me.jadenp.notbounties.utils.DataManager;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -101,20 +102,23 @@ public class CustomItem {
         this.color = color;
     }
 
-    private String parseReplacements(String str, OfflinePlayer player, String[] replacements) {
+    private String parseReplacements(String str, OfflinePlayer player, String[] replacements, String guiType) {
         return parse(str.replace("{leaderboard}", replacements[0])
                 .replace("{leaderboard_name}", replacements[1])
                 .replace("{amount}", replacements[1])
                 .replace("{tax}", replacements[2])
-                .replace("{amount_tax}", replacements[3]), player)
+                .replace("{amount_tax}", replacements[3])
                 .replace("{page}", replacements[4])
                 .replace("{page_max}", replacements[5])
                 .replace("%notbounties_current_page%", replacements[4])
-                .replace("%notbounties_total_pages%", replacements[5]);
+                .replace("%notbounties_total_pages%", replacements[5])
+                .replace("{sort_type}", DataManager.getPlayerData(player.getUniqueId()).getGUISortType(guiType) + "")
+                .replace("{sort_type_name}", GUI.parseSortType(guiType, DataManager.getPlayerData(player.getUniqueId()).getGUISortType(guiType)))
+                .replace("{gui}", guiType), player);
     }
 
 
-    public ItemStack getFormattedItem(OfflinePlayer player, String[] replacements){
+    public ItemStack getFormattedItem(OfflinePlayer player, String[] replacements, String guiType){
         if (replacements == null)
             replacements = new String[]{"","","","","",""};
         if (replacements.length < 6) {
@@ -128,11 +132,11 @@ public class CustomItem {
         ItemMeta meta = itemStack.getItemMeta();
         if (meta == null) return itemStack;
         if (name != null)
-            meta.setDisplayName(parseReplacements(name, player, replacements));
+            meta.setDisplayName(parseReplacements(name, player, replacements, guiType));
         if (!lore.isEmpty()) {
             List<String> newLore = new ArrayList<>(this.lore);
             String[] finalReplacements = replacements;
-            newLore.replaceAll(s -> parseReplacements(s, player, finalReplacements));
+            newLore.replaceAll(s -> parseReplacements(s, player, finalReplacements, guiType));
             meta.setLore(newLore);
         }
         if (customModelData != -1)
@@ -178,7 +182,7 @@ public class CustomItem {
     }
 
     public String toString(){
-        return getFormattedItem(null, new String[0]).toString();
+        return getFormattedItem(null, new String[0], "").toString();
     }
 
     /**

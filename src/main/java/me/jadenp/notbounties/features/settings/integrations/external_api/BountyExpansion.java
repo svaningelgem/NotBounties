@@ -49,6 +49,7 @@ public class BountyExpansion extends PlaceholderExpansion {
      * Add "_value" to the end of leaderboard to get the raw value
      * Add "_name" to the end of top placeholder to get the name of the player in that position
      * <p>%notbounties_bounty%</p>
+     * <p>%notbounties_bounty_rank%</p>
      * <p>%notbounties_total%</p>
      * <p>%notbounties_(all/kills/claimed/deaths/set/immunity/current)%</p>
      * <p>%notbounties_top_[x]_(all/kills/claimed/deaths/set/immunity/current)%</p>
@@ -60,6 +61,7 @@ public class BountyExpansion extends PlaceholderExpansion {
      * <p>%notbounties_current_page%</p>
      * <p>%notbounties_total_pages%</p>
      * <p>%notbounties_sort(_gui)%</p>
+     * <p>%notbounties_sort_name(_gui)%</p>
      * @Depricated <p>%notbounties_bounties_claimed%</p>
      * <p>%notbounties_bounties_set%</p>
      * <p>%notbounties_bounties_received%</p>
@@ -112,10 +114,18 @@ public class BountyExpansion extends PlaceholderExpansion {
         }
         if (params.startsWith("sort")){
             if (params.equalsIgnoreCase("sort")) {
-                return LanguageOptions.parse(GUI.getActiveSortType(player.getUniqueId()), player);
+                return GUI.getActiveSortType(player.getUniqueId()) + "";
             }
-            String guiName = params.substring(5);
-            return LanguageOptions.parse(GUI.parseSortType(guiName, DataManager.getPlayerData(player.getUniqueId()).getGUISortType(guiName)), player);
+            if (params.startsWith("sort_name")) {
+                if (params.equalsIgnoreCase("sort_name")) {
+                    return LanguageOptions.parse(GUI.getActiveSortTypeName(player.getUniqueId()), player);
+                }
+                String guiName = params.substring(9);
+                return LanguageOptions.parse(GUI.parseSortType(guiName, DataManager.getPlayerData(player.getUniqueId()).getGUISortType(guiName)), player);
+            } else {
+                String guiName = params.substring(5);
+                return DataManager.getPlayerData(player.getUniqueId()).getGUISortType(guiName) + "";
+            }
         }
         if (params.startsWith("challenge")) {
             if (params.length() < 11)

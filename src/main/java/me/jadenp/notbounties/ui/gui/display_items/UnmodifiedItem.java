@@ -21,7 +21,7 @@ public class UnmodifiedItem implements DisplayItem, AmountItem{
     private final List<String> additionalLore;
 
     @Override
-    public ItemStack getFormattedItem(Player player, String headName, List<String> lore, int customModelData, String itemModel) {
+    public ItemStack getFormattedItem(Player player, String headName, List<String> lore, int customModelData, String itemModel, String guiType) {
         ItemStack item = itemStack.clone();
         ItemMeta meta = item.getItemMeta();
         if (meta == null)

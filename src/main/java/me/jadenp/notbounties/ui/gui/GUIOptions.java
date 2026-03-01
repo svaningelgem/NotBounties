@@ -191,25 +191,25 @@ public class GUIOptions {
             if (removePageItems) {
                 // next
                 if (getPageType(customItems[i].getCommands()) == 1 && page * playerSlots.size() >= displayItems.size()) {
-                    ItemStack replacement = pageReplacements.containsKey(i) ? pageReplacements.get(i).getFormattedItem(player, replacements) : null;
+                    ItemStack replacement = pageReplacements.containsKey(i) ? pageReplacements.get(i).getFormattedItem(player, replacements, type) : null;
                     contents[i] = replacement;
                     continue;
                 }
                 // back
                 if (getPageType(customItems[i].getCommands()) == 2 && page == 1) {
-                    ItemStack replacement = pageReplacements.containsKey(i) ? pageReplacements.get(i).getFormattedItem(player, replacements) : null;
+                    ItemStack replacement = pageReplacements.containsKey(i) ? pageReplacements.get(i).getFormattedItem(player, replacements, type) : null;
                     contents[i] = replacement;
                     continue;
                 }
             }
-            contents[i] = customItems[i].getFormattedItem(player, replacements);
+            contents[i] = customItems[i].getFormattedItem(player, replacements, type);
         }
         // set up player slots
         List<QueuedHead> unloadedHeads = new ArrayList<>();
         boolean isSinglePlayerSlot = type.equals("select-price") || type.equals("confirm-bounty") || type.equals("bounty-item-select") || type.equals("challenges") || type.equals("bounty-hunt-time");
         for (int i = isSinglePlayerSlot ? 0 : (int) ((page - 1) * playerSlots.size()); i < Math.min(playerSlots.size() * page, displayItems.size()); i++) {
             DisplayItem displayItem = displayItems.get(i);
-            ItemStack item = displayItem.getFormattedItem(player, headName, headLore, customModelData, itemModel);
+            ItemStack item = displayItem.getFormattedItem(player, headName, headLore, customModelData, itemModel, type);
             int slot = isSinglePlayerSlot ? playerSlots.get(i) : (playerSlots.get((int) (i - playerSlots.size() * (page-1))));
 
             if (displayItem instanceof PlayerItem playerItem)

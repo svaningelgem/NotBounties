@@ -35,6 +35,7 @@ public class LoggedPlayers {
      * Name (lowercase), UUID
      */
     private static final Map<String, UUID> playerIDs = new HashMap<>();
+    private static final Set<UUID> requestingNames = new HashSet<>();
 
     private static HttpSyncPool httpPool;
 
@@ -217,12 +218,18 @@ public class LoggedPlayers {
     }
 
     private static void webRequestPlayerName(@NotNull UUID uuid, PlayerData playerData) {
-        if (uuid.version() == 4 /* check if online player */) {
+        if (uuid.version() == 4 /* check if online player */ && !requestingNames.contains(uuid)) {
+            requestingNames.add(uuid);
             loadHttpPool();
             httpPool.requestPlayerNameAsync(uuid, new HttpSyncPool.ResponseHandler())
-                    .thenAccept(playerData::setPlayerName)
+                    .thenAccept((name) -> {
+                        playerData.setPlayerName(name);
+                        requestingNames.remove(uuid);
+                        logPlayer(name, uuid);
+                    })
                     .exceptionally(ex -> {
                         NotBounties.debugMessage("Failed to get player name for " + uuid + ".", true);
+                        requestingNames.remove(uuid);
                         return null;
                     });
         }

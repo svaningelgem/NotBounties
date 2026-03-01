@@ -179,7 +179,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                             }
                         }
                         if (player != null) {
-                            player.sendMessage(parse(getPrefix() + getMessage("sort-change").replace("{gui}", args[1]).replace("{sort_type}", String.valueOf(newSortType)), player));
+                            player.sendMessage(parse(getPrefix() + getMessage("sort-change").replace("{gui}", args[1]).replace("{sort_type}", String.valueOf(newSortType)).replace("{sort_type_name}", GUI.parseSortType(args[1].toLowerCase(), newSortType)), player));
                         }
                         playerData.setGUISortType(args[1].toLowerCase(), newSortType);
                         return true;
@@ -2178,6 +2178,9 @@ public class Commands implements CommandExecutor, TabCompleter {
                 if (sender.hasPermission("notbounties.cleanentities")) {
                     tab.add("cleanEntities");
                 }
+                if (sender.hasPermission("notbounties.sort")) {
+                    tab.add("sort");
+                }
                 if (sender.hasPermission(NotBounties.getAdminPermission())) {
                     tab.add("remove");
                     tab.add("edit");
@@ -2219,6 +2222,8 @@ public class Commands implements CommandExecutor, TabCompleter {
                             tab.add(bounty.getName());
                         }
                     }
+                } else if (args[0].equalsIgnoreCase("sort") && sender.hasPermission("notbounties.sort")) {
+                    tab.addAll(GUI.getGUITypes());
                 } else if (args[0].equalsIgnoreCase("hunt") && BountyHunt.isEnabled()) {
                     if (sender.hasPermission("notbounties.hunt.start")) {
                         List<Bounty> bountyList = BountyManager.getPublicBounties(-1);
@@ -2340,6 +2345,8 @@ public class Commands implements CommandExecutor, TabCompleter {
             } else if (args.length == 3) {
                 if ((args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("edit")) && sender.hasPermission(NotBounties.getAdminPermission())) {
                     tab.add("from");
+                } else if (args[0].equalsIgnoreCase("sort") && sender.hasPermission("notbounties.sort")) {
+                    tab.add("toggle");
                 } else if (args[0].equalsIgnoreCase("hunt") && BountyHunt.isEnabled()) {
                     if (sender.hasPermission("notbounties.hunt.participate") && sender instanceof Player player) {
                         if (args[1].equalsIgnoreCase("leave")) {
