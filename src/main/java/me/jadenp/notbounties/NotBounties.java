@@ -72,6 +72,7 @@ import static me.jadenp.notbounties.features.LanguageOptions.*;
  * Option to send api request when setting a bounty on offline player
  * bounty hunt option to split the bounty between participants
  * Bounty broadcast and other messages over proxy/redis
+ * Reload skins after a configurable time
  *
  * GUI Sort type (and custom item) x
  * papi and player names in custom heads x
