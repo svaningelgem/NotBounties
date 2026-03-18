@@ -1,21 +1,9 @@
 package me.jadenp.notbounties.utils;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import me.jadenp.notbounties.NotBounties;
-import me.jadenp.notbounties.data.Bounty;
 import me.jadenp.notbounties.data.player_data.PlayerData;
 import me.jadenp.notbounties.features.ConfigOptions;
 import me.jadenp.notbounties.features.settings.databases.proxy.ProxyMessaging;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.xml.crypto.Data;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -165,6 +151,7 @@ public class LoggedPlayers {
         if (playerIDs.containsKey(player.getName().toLowerCase(Locale.ROOT))) {
             UUID uuid = playerIDs.get(player.getName().toLowerCase(Locale.ROOT));
             if (!uuid.equals(player.getUniqueId())) {
+                NotBounties.debugMessage(player.getName() + " is logged with a different UUID! " + player.getUniqueId() + " != " + uuid, true);
                 // another player has this name logged - remove their reference
                 DataManager.getPlayerData(uuid).setPlayerName(uuid.toString());
                 playerIDs.put(uuid.toString(), uuid);
@@ -174,6 +161,7 @@ public class LoggedPlayers {
 
         // check if they are logged yet
         if (isMissing(player.getUniqueId())) {
+            NotBounties.debugMessage("Logging player name: " + player.getName(), false);
             // if not, add them
             DataManager.getPlayerData(player.getUniqueId()).setPlayerName(player.getName());
             // send a proxy message to log
@@ -182,6 +170,7 @@ public class LoggedPlayers {
             // if they are, check if their username has changed, and update it
             String recordedName = getPlayerName(player.getUniqueId());
             if (!recordedName.equals(player.getName())) {
+                NotBounties.debugMessage("Recorded name for " + player.getUniqueId() + " does not match. " + player.getName() + " != " + recordedName, true);
                 try {
                     UUID.fromString(recordedName);
                     // log new player if their old name was a uuid
@@ -239,7 +228,7 @@ public class LoggedPlayers {
             requestingNames.add(uuid);
             loadHttpPool();
             httpPool.requestPlayerNameAsync(uuid, new HttpSyncPool.ResponseHandler())
-                    .thenAccept((name) -> {
+                    .thenAccept(name -> {
                         playerData.setPlayerName(name);
                         requestingNames.remove(uuid);
                         logPlayer(name, uuid);

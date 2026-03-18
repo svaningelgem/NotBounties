@@ -123,7 +123,9 @@ public class Bounty extends Inconsistent implements Comparable<Bounty> {
     public String getName() {
         try {
             UUID.fromString(name);
-            setDisplayName(LoggedPlayers.getPlayerName(uuid));
+            String loggedName = LoggedPlayers.getPlayerName(uuid);
+            NotBounties.debugMessage("Detected a uuid as a player name for a bounty. UUID: " + name + " Logged name: " + loggedName, true);
+            setDisplayName(loggedName);
         } catch (IllegalArgumentException ignored) {
             // name is not a uuid
         }

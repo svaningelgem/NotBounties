@@ -425,12 +425,18 @@ public class LocalData extends NotBountiesDatabase {
      * Replaces the server IDs that match with the local server with the global ID.
      */
     public void syncPermData() {
-        for (Bounty bounty : activeBounties)
-            bounty.setServerID(DataManager.GLOBAL_SERVER_ID);
-        for (Map.Entry<UUID, PlayerStat> entry : playerStats.entrySet())
-            entry.getValue().setServerID(DataManager.GLOBAL_SERVER_ID);
-        for (Map.Entry<UUID, PlayerData> entry : playerDataMap.entrySet())
-            entry.getValue().setServerID(DataManager.GLOBAL_SERVER_ID);
+        synchronized (activeBounties) {
+            for (Bounty bounty : activeBounties)
+                bounty.setServerID(DataManager.GLOBAL_SERVER_ID);
+        }
+        synchronized (playerStats) {
+            for (Map.Entry<UUID, PlayerStat> entry : playerStats.entrySet())
+                entry.getValue().setServerID(DataManager.GLOBAL_SERVER_ID);
+        }
+        synchronized (playerDataMap) {
+            for (Map.Entry<UUID, PlayerData> entry : playerDataMap.entrySet())
+                entry.getValue().setServerID(DataManager.GLOBAL_SERVER_ID);
+        }
     }
 
     @Override

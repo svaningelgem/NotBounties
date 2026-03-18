@@ -73,16 +73,7 @@ import static me.jadenp.notbounties.features.LanguageOptions.*;
  * bounty hunt option to split the bounty between participants
  * Bounty broadcast and other messages over proxy/redis
  * Reload skins after a configurable time
- *
- * GUI Sort type (and custom item) x
- * papi and player names in custom heads x
- * data saves x
- * konquest hook x
- * bounty rank placeholder x
- * currency commands run when using vault x
- * bounty claim permission x
- * bounty list changes
- * ping dren on update
+ * Do sorting of stats asynchronously before displaying for the player.
  */
 public final class NotBounties extends JavaPlugin {
 
@@ -224,10 +215,16 @@ public final class NotBounties extends JavaPlugin {
             if (players.size() == 1 && ProxyDatabase.isEnabled() && ProxyDatabase.isDatabaseSynchronization() && ProxyMessaging.hasConnectedBefore()) {
                 DataManager.syncPlayerData(players.iterator().next().getUniqueId(), null);
             }
-            for (Player player : players) {
-                if (LoggedPlayers.isMissing(player.getUniqueId())) {
-                    DataManager.getPlayerData(player.getUniqueId()).setPlayerName(player.getName());
+            if (!players.isEmpty()) {
+                int unlogged = 0;
+                for (Player player : players) {
+                    if (LoggedPlayers.isMissing(player.getUniqueId())) {
+                        unlogged++;
+                        DataManager.getPlayerData(player.getUniqueId()).setPlayerName(player.getName());
+                        NotBounties.debugMessage("Logging a missing player name: " + player.getName() + " -> " + player.getUniqueId(), true);
+                    }
                 }
+                NotBounties.debugMessage("Found " + unlogged + " unlogged player names.", false);
             }
 
         }, 3611, 3600);
@@ -472,7 +469,9 @@ public final class NotBounties extends JavaPlugin {
 
         sender.sendMessage(ChatColor.GOLD + "Stats > " + ChatColor.YELLOW + "Bounties: " + ChatColor.WHITE + bounties
                 + ChatColor.YELLOW + " Tracked Bounties: " + ChatColor.WHITE + BountyTracker.getTrackedBounties().size()
-                + ChatColor.YELLOW + " Bounty Boards: " + ChatColor.WHITE + BountyBoard.getBountyBoards().size());
+                + ChatColor.YELLOW + " Bounty Boards: " + ChatColor.WHITE + BountyBoard.getBountyBoards().size()
+                + ChatColor.YELLOW + " Unique Players: " + ChatColor.WHITE + DataManager.getAllPlayerData().size()
+        );
 
         List<String> hooks = getPluginHooks();
         String joined = String.join(ChatColor.GRAY + "|" + ChatColor.GREEN, hooks);

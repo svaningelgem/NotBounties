@@ -157,8 +157,12 @@ public class SaveManager {
             Set<PlayerData> playerDataList = DataManager.getLocalPlayerData();
             NotBounties.debugMessage("Saving " + playerDataList.size() + " player data.", false);
             for (PlayerData playerData : playerDataList) {
-                if (playerData == null || playerData.getPlayerName() == null)
+                if (playerData == null || playerData.getPlayerName() == null) {
+                    if (playerData != null) {
+                        NotBounties.debugMessage("Player has invalid name: " + playerData.getUuid(), false);
+                    }
                     continue;
+                }
                 writer.beginObject();
                 writer.name("data");
                 adapter.write(writer, playerData);
