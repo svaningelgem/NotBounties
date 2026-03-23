@@ -77,6 +77,7 @@ import static me.jadenp.notbounties.features.LanguageOptions.*;
  * Reload skins after a configurable time
  * Do sorting of stats asynchronously before displaying for the player.
  * EconomyShopGUI hook
+ * bounty hunt end admin command
  */
 public final class NotBounties extends JavaPlugin {
 
