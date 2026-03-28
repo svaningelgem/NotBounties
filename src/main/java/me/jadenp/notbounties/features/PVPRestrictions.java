@@ -2,6 +2,8 @@ package me.jadenp.notbounties.features;
 
 import me.jadenp.notbounties.NotBounties;
 import me.jadenp.notbounties.PVPHistory;
+import me.jadenp.notbounties.features.settings.integrations.BountyClaimRequirements;
+import me.jadenp.notbounties.features.settings.integrations.external_api.LandsClass;
 import me.jadenp.notbounties.utils.BountyManager;
 import me.jadenp.notbounties.features.settings.integrations.external_api.LocalTime;
 import me.jadenp.notbounties.features.settings.integrations.external_api.worldguard.WorldGuardClass;
@@ -141,6 +143,19 @@ public class PVPRestrictions implements Listener {
                 if (!BountyManager.hasBounty(player.getUniqueId()) && !BountyManager.hasBounty(damager.getUniqueId())) {
                     event.setCancelled(true);
                     return;
+                }
+                break;
+            case 4:
+                // block pvp in lands for people without bounties and bounties claim flag is not set
+                if (BountyClaimRequirements.isLandsEnabled()) {
+                    LandsClass landsClass = new LandsClass();
+                    if (!landsClass.canClaim(player, player.getLocation()) && !landsClass.canClaim(damager, player.getLocation())) {
+                        // claim flag is not set at either location
+                        if (!BountyManager.hasBounty(player.getUniqueId()) && !BountyManager.hasBounty(damager.getUniqueId())) {
+                            event.setCancelled(true);
+                            return;
+                        }
+                    }
                 }
                 break;
             default:

@@ -76,6 +76,7 @@ pvp-restrictions:
   # 1 - players can only damage other players with bounties
   # 2 - players can damage other players with bounties and those players can fight back
   # 3 - players can damage other players with bounties and players with bounties can damage anyone
+  # 4 - players without bounties cannot damage other players without bounties inside Lands claims
   rule: 2
   # if rule is set to 2 - the time in seconds that players with bounties can fight back after taking damage from another player
   pvp-time: 60
