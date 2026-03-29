@@ -66,7 +66,7 @@ public class LocalTime {
 
     private static String formatTime(long time, Player player) {
         if (!ConfigOptions.isAutoTimezone())
-            return formatTime(time, player.getLocale());
+            return formatTime(time);
         if (lastException + ERROR_TIMEOUT_MS > System.currentTimeMillis() || ProxyMessaging.hasConnectedBefore())
             return formatTime(time, player.getLocale());
         if (license == null) {
@@ -136,7 +136,10 @@ public class LocalTime {
     }
 
     private static String formatTime(long time) {
-        return ConfigOptions.getDateFormat().format(time) + " " + ConfigOptions.getDateFormat().getTimeZone().getDisplayName(false, TimeZone.SHORT);
+        int style = ConfigOptions.getDefaultDateTimeStyle();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(style, style, NumberFormatting.getLocale());
+        dateFormat.setTimeZone(ConfigOptions.getDefaultPlayerTimeZone());
+        return dateFormat.format(time) + " " + dateFormat.getTimeZone().getDisplayName(false, TimeZone.SHORT);
     }
 
     private static String formatRelativeTime(long ms) {

@@ -48,6 +48,7 @@ public class BountyExpansion extends PlaceholderExpansion {
      * Add "_full" to the end of leaderboard to add what the stat is about
      * Add "_value" to the end of leaderboard to get the raw value
      * Add "_name" to the end of top placeholder to get the name of the player in that position
+     * Add "_displayname" to the end of top placeholder to get the display name of the player in that position
      * <p>%notbounties_bounty%</p>
      * <p>%notbounties_bounty_rank%</p>
      * <p>%notbounties_total%</p>

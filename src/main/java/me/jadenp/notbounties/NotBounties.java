@@ -220,15 +220,12 @@ public final class NotBounties extends JavaPlugin {
                 DataManager.syncPlayerData(players.iterator().next().getUniqueId(), null);
             }
             if (!players.isEmpty()) {
-                int unlogged = 0;
                 for (Player player : players) {
                     if (LoggedPlayers.isMissing(player.getUniqueId())) {
-                        unlogged++;
                         DataManager.getPlayerData(player.getUniqueId()).setPlayerName(player.getName());
                         NotBounties.debugMessage("Logging a missing player name: " + player.getName() + " -> " + player.getUniqueId(), true);
                     }
                 }
-                NotBounties.debugMessage("Found " + unlogged + " unlogged player names.", false);
             }
 
         }, 3611, 3600);
@@ -267,6 +264,7 @@ public final class NotBounties extends JavaPlugin {
                 MurderBounties.cleanPlayerKills();
                 SkinManager.removeOldData();
                 RemovePersistentEntitiesEvent.checkRemovedEntities();
+                ProxyMessaging.cleanCache();
 
                 try {
                     SafeSaver.saveWithTimeout(() -> {

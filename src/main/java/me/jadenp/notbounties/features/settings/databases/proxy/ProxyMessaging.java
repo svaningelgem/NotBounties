@@ -16,7 +16,6 @@ import me.jadenp.notbounties.data.PlayerStat;
 import me.jadenp.notbounties.utils.tasks.SkinRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public class ProxyMessaging implements PluginMessageListener, Listener {
+public class ProxyMessaging implements PluginMessageListener {
     private static boolean connectedBefore = false;
     protected static final String CHANNEL = "notbounties:main";
 
@@ -34,6 +33,8 @@ public class ProxyMessaging implements PluginMessageListener, Listener {
     private static List<PlayerData> playerDataCache;
     private static final List<PreparedUpdateMessage> preparedUpdateMessage = Collections.synchronizedList(new LinkedList<>());
     private static long idCounter = 0;
+    private static final int DUPLICATE_MESSAGE_THRESHOLD = 300;
+    private static final Map<Integer, Long> hashedMessages = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Whether this server has up-to-date data. This server will not have up-to-date data if no players are online
@@ -51,6 +52,11 @@ public class ProxyMessaging implements PluginMessageListener, Listener {
 
     private static void setConnectedBefore() {
         ProxyMessaging.connectedBefore = true;
+    }
+
+    public static void cleanCache() {
+        long threshold = System.currentTimeMillis() - DUPLICATE_MESSAGE_THRESHOLD;
+        hashedMessages.entrySet().removeIf(entry -> entry.getValue() < threshold);
     }
 
     /**
@@ -81,17 +87,27 @@ public class ProxyMessaging implements PluginMessageListener, Listener {
      */
     private void receiveMessage(ByteArrayDataInput in) throws IOException {
         String subChannel = in.readUTF();
-        NotBounties.debugMessage("Received a message from proxy: " + subChannel, false);
         short len = in.readShort();
         byte[] msgBytes = new byte[len];
         in.readFully(msgBytes);
+        int hash = Arrays.hashCode(msgBytes);
+        if (System.currentTimeMillis() - hashedMessages.getOrDefault(hash, 0L) < DUPLICATE_MESSAGE_THRESHOLD) {
+            // duplicate message
+            NotBounties.debugMessage("Duplicate message received from proxy: " + subChannel + " hash: " + Arrays.hashCode(msgBytes), false);
+            return;
+        }
+        hashedMessages.put(hash, System.currentTimeMillis());
+
         DataInputStream msgIn = new DataInputStream(new ByteArrayInputStream(msgBytes));
+
+        NotBounties.debugMessage("Received a message from proxy: " + subChannel + " hash: " + Arrays.hashCode(msgBytes), false);
 
         switch (subChannel) {
             case "ReceiveConnection" -> receiveConnection(msgIn);
             case "PlayerList" -> receivePlayerList(msgIn);
             case "Forward" -> {
                 String subSubChannel = msgIn.readUTF();
+                NotBounties.debugMessage("Sub Channel: " + subSubChannel, false);
                 switch (subSubChannel) {
                     case "BountyUpdate" -> receiveBountyUpdate(msgIn);
                     case "StatUpdate" -> receiveStatUpdate(msgIn);
@@ -149,7 +165,6 @@ public class ProxyMessaging implements PluginMessageListener, Listener {
 
     private synchronized void receiveConnection(DataInputStream msgIn) throws IOException {
         if (!ProxyDatabase.isDatabaseSynchronization()) {
-            //msgIn.readFully(new byte[msgIn.available()]);
             return;
         }
         short savedBounties = msgIn.readShort();
@@ -184,6 +199,7 @@ public class ProxyMessaging implements PluginMessageListener, Listener {
         try {
             currentMessage = msgIn.readShort();
             remainingMessages = msgIn.readShort();
+            NotBounties.debugMessage("Received message count: " + currentMessage + " remaining: " + remainingMessages, false);
         } catch (EOFException e) {
             // proxy isn't updated
             Bukkit.getLogger().severe("[NotBounties] Message count has not been transmitted from the proxy. Is the proxy NotBounties updated?");
@@ -321,7 +337,6 @@ public class ProxyMessaging implements PluginMessageListener, Listener {
      */
     public static void sendMessage(String identifier, byte[] data, Player player) {
         player.sendPluginMessage(NotBounties.getInstance(), identifier, data);
-        // return is for future compatibility
     }
 
     /**
