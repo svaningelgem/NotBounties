@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.util.*;
+import java.util.TimeZone;
 
 
 public class ConfigOptions {
@@ -51,6 +52,8 @@ public class ConfigOptions {
     private static int maxSetters;
     private static DateFormat dateFormat;
     private static boolean bountyConfirmation;
+    private static int defaultDateTimeStyle;
+    private static TimeZone defaultPlayerTimeZone;
     private static boolean removeBannedPlayers;
     private static boolean firstStart = true;
     private static boolean bountyBackups;
@@ -212,7 +215,25 @@ public class ConfigOptions {
         setterClaimOwn = plugin.getConfig().getBoolean("setter-claim-own");
         usePlcmdInGui = plugin.getConfig().getBoolean("use-plcmd-in-gui");
 
+        // Default player time formatting style
+        String styleStr = String.valueOf(plugin.getConfig().getString("time.default-format-style", "DEFAULT")).toUpperCase(Locale.ROOT);
+        switch (styleStr) {
+            case "FULL" -> defaultDateTimeStyle = DateFormat.FULL;
+            case "LONG" -> defaultDateTimeStyle = DateFormat.LONG;
+            case "MEDIUM" -> defaultDateTimeStyle = DateFormat.MEDIUM;
+            case "SHORT" -> defaultDateTimeStyle = DateFormat.SHORT;
+            default -> defaultDateTimeStyle = DateFormat.DEFAULT;
+        }
+
         dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, NumberFormatting.getLocale());
+
+        // Default player timezone when none recorded
+        String tzStr = String.valueOf(plugin.getConfig().getString("time.default-timezone", "SERVER"));
+        if (tzStr == null || tzStr.equalsIgnoreCase("SERVER") || tzStr.isEmpty()) {
+            defaultPlayerTimeZone = TimeZone.getDefault();
+        } else {
+            defaultPlayerTimeZone = TimeZone.getTimeZone(tzStr);
+        }
 
         File guiFile = new File(plugin.getDataFolder() + File.separator + "gui.yml");
         if (!guiFile.exists()) {
@@ -528,6 +549,14 @@ public class ConfigOptions {
 
     public static DateFormat getDateFormat() {
         return dateFormat;
+    }
+
+    public static int getDefaultDateTimeStyle() {
+        return defaultDateTimeStyle;
+    }
+
+    public static TimeZone getDefaultPlayerTimeZone() {
+        return defaultPlayerTimeZone;
     }
 
     public static boolean isSendBStats() {

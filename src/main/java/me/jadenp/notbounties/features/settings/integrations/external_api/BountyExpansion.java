@@ -108,6 +108,10 @@ public class BountyExpansion extends PlaceholderExpansion {
                 }
                 if (params.endsWith("_formatted"))
                     return LanguageOptions.color(NumberFormatting.getCurrencyPrefix() + NumberFormatting.formatNumber(bounty.getTotalDisplayBounty()) + NumberFormatting.getCurrencySuffix());
+                if (params.endsWith("_name"))
+                    return bounty.getName();
+                if (params.endsWith("_displayname"))
+                    return getDisplayName(player);
                 return NumberFormatting.getValue(bounty.getTotalDisplayBounty());
             }
             return "0";
@@ -212,6 +216,10 @@ public class BountyExpansion extends PlaceholderExpansion {
             ending = 5;
             params = params.substring(0,params.lastIndexOf("_"));
         }
+        if (params.endsWith("_displayname")) {
+            ending = 6;
+            params = params.substring(0,params.lastIndexOf("_"));
+        }
         if (params.startsWith("top_")) {
             params = params.substring(4);
             int rank;
@@ -251,9 +259,9 @@ public class BountyExpansion extends PlaceholderExpansion {
                 return LanguageOptions.parse(leaderboard.getFormattedStat(uuid1),p);
             if (ending == 3)
                 return NumberFormatting.getValue(leaderboard.getStat(uuid1));
-            if (ending == 4) {
-                return name;
-            }
+            if (ending == 4) return name;
+            if (ending == 5) return NumberFormatting.formatNumber(leaderboard.getRank(uuid1));
+            if (ending == 6) return getDisplayName(p);
             return Leaderboard.parseBountyTopString(rank, name, amount, useCurrency, p);
         }
 
@@ -267,14 +275,22 @@ public class BountyExpansion extends PlaceholderExpansion {
                 return LanguageOptions.parse(leaderboard.getFormattedStat(player.getUniqueId()),player);
             if (ending == 3)
                 return NumberFormatting.getValue(leaderboard.getStat(player.getUniqueId()));
-            if (ending == 5) {
-                return NumberFormatting.formatNumber(leaderboard.getRank(player.getUniqueId()));
-            }
+            if (ending == 4)
+                return LoggedPlayers.getPlayerName(player.getUniqueId());
+            if (ending == 5) return NumberFormatting.formatNumber(leaderboard.getRank(player.getUniqueId()));
+            if (ending == 6) return getDisplayName(player);
             return NumberFormatting.formatNumber(leaderboard.getStat(player.getUniqueId()));
         } catch (IllegalArgumentException ignored){
             // not a valid leaderboard
         }
 
         return null;
+    }
+
+    private String getDisplayName(OfflinePlayer p) {
+        if (p.isOnline()) {
+            return Objects.requireNonNull(p.getPlayer()).getDisplayName();
+        }
+        return LoggedPlayers.getPlayerName(p.getUniqueId());
     }
 }

@@ -42,6 +42,14 @@ steal-bounties: false
 claim-order: REGULAR
 # automatically display times in the timezone of each player
 auto-timezone: true
+# time display settings
+time:
+  # Style options: FULL, LONG, MEDIUM, SHORT, DEFAULT
+  # This controls both date and time style for player-facing times when falling back
+  default-format-style: DEFAULT
+  # Timezone ID for when a player's timezone isn't recorded yet. Use SERVER to use the server's timezone
+  # Examples: UTC, America/New_York, Europe/London, Asia/Tokyo
+  default-timezone: SERVER
 # reduce the number of players that are stored when using the GUI
 # the {page_max} placeholder may not be accurate if this is true
 reduce-page-calculations: true

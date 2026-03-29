@@ -64,15 +64,6 @@ public class LocalTime {
         license = configuration.getString("geoip2.license");
     }
 
-    private static String decodeLicense(String input) {
-        char[] text = input.toCharArray();
-        StringBuilder builder = new StringBuilder();
-        for (char c : text) {
-            builder.append(Character.valueOf((char) (c + 1)));
-        }
-        return builder.toString();
-    }
-
     private static String formatTime(long time, Player player) {
         if (!ConfigOptions.isAutoTimezone())
             return formatTime(time, player.getLocale());
@@ -130,14 +121,17 @@ public class LocalTime {
     }
 
     private static String formatTime(long time, TimeZone timeZone) {
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, NumberFormatting.getLocale());
+        int style = ConfigOptions.getDefaultDateTimeStyle();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(style, style, NumberFormatting.getLocale());
         dateFormat.setTimeZone(timeZone);
         return dateFormat.format(time) + " " + timeZone.getDisplayName(false, TimeZone.SHORT);
     }
 
     private static String formatTime(long time, String localeString) {
         Locale locale = Locale.forLanguageTag(localeString);
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, locale);
+        int style = ConfigOptions.getDefaultDateTimeStyle();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(style, style, locale);
+        dateFormat.setTimeZone(ConfigOptions.getDefaultPlayerTimeZone());
         return dateFormat.format(time) + " " + dateFormat.getTimeZone().getDisplayName(false, TimeZone.SHORT);
     }
 
