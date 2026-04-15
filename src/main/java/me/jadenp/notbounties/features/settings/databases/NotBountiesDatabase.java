@@ -5,6 +5,7 @@ import me.jadenp.notbounties.data.Bounty;
 import me.jadenp.notbounties.data.player_data.PlayerData;
 import me.jadenp.notbounties.data.PlayerStat;
 import me.jadenp.notbounties.features.ConfigOptions;
+import me.jadenp.notbounties.utils.DataManager;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -25,6 +26,7 @@ public abstract class NotBountiesDatabase implements Comparable<NotBountiesDatab
     private final Plugin plugin;
     private int priority = 0;
     private int refreshInterval = 0;
+    private long lastSyncAttempt = 0;
     private long lastSync = 0;
     protected boolean hasConnected = false;
     private long nextReconnectAttempt;
@@ -336,6 +338,20 @@ public abstract class NotBountiesDatabase implements Comparable<NotBountiesDatab
             }
         }
         return false;
+    }
+
+    /**
+     * Check if the database should be synced.
+     * The sync cooldown is set after calling this function.
+     * If this function returns false, the database should attempt to sync.
+     * @return False if the database should be synced.
+     */
+    public synchronized boolean checkSyncInterval() {
+        if (System.currentTimeMillis() - lastSyncAttempt > DataManager.MIN_DATABASE_SYNC_INTERVAL_MS) {
+            lastSyncAttempt = System.currentTimeMillis();
+            return false;
+        }
+        return true;
     }
 
     @Override

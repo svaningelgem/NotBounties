@@ -122,7 +122,8 @@ public class HeadLoader extends CancelableTask{
             if (fromMeta.hasItemModel()) {
                 toMeta.setItemModel(fromMeta.getItemModel());
             }
-        } else if (fromMeta.hasCustomModelData()) {
+        }
+        if (fromMeta.hasCustomModelData()) {
             toMeta.setCustomModelData(fromMeta.getCustomModelData());
         }
         if (fromMeta.hasDisplayName())

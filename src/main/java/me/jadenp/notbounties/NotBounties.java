@@ -373,16 +373,28 @@ public final class NotBounties extends JavaPlugin {
 
     private static void readVersion(Plugin plugin) {
         try {
-            // get the text version - ex: 1.20.3
-            String fullServerVersion = Bukkit.getBukkitVersion().substring(0, Bukkit.getBukkitVersion().indexOf("-"));
-            fullServerVersion = fullServerVersion.substring(2); // remove the '1.' in the version
-            if (fullServerVersion.contains(".")) {
-                // get the subversion - ex: 3
-                serverSubVersion = Integer.parseInt(fullServerVersion.substring(fullServerVersion.indexOf(".") + 1));
-                fullServerVersion = fullServerVersion.substring(0, fullServerVersion.indexOf(".")); // remove the subversion
+            // Example: "1.21.11-R0.1-SNAPSHOT" OR "26.1.2-R0.1-SNAPSHOT"
+            String versionString = Bukkit.getBukkitVersion();
+            versionString = versionString.substring(0, versionString.indexOf("-"));
+
+            String[] parts = versionString.split("\\.");
+
+            if (parts.length < 2) {
+                throw new IllegalArgumentException("Invalid version format: " + versionString);
             }
-            serverVersion = Integer.parseInt(fullServerVersion);
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+
+            // Old format: 1.x.y → ignore the leading 1
+            if (parts[0].equals("1")) {
+                serverVersion = Integer.parseInt(parts[1]); // x
+                serverSubVersion = (parts.length > 2) ? Integer.parseInt(parts[2]) : 0; // y
+            }
+            // New format: x.y.z
+            else {
+                serverVersion = Integer.parseInt(parts[0]); // x
+                serverSubVersion = Integer.parseInt(parts[1]); // y
+            }
+
+        } catch (Exception e) {
             plugin.getLogger().warning("Could not get the server version. Some features may not function properly.");
             serverVersion = 20;
             serverSubVersion = 0;

@@ -58,7 +58,7 @@ public class DataManager {
     private static UUID databaseServerID = null;
     public static final long CONNECTION_REMEMBRANCE_MS = (long) 2.592e+8; // how long before databases stop storing changes if no connection was made (3 days)
     public static final UUID GLOBAL_SERVER_ID = new UUID(0,0);
-    private static final long MIN_DATABASE_SYNC_INTERVAL_MS = 1000; // for reading the priority database for getting local data on save
+    public static final long MIN_DATABASE_SYNC_INTERVAL_MS = 1000; // for reading the priority database for getting local data on save
     private static long lastPriorityDatabaseSync = 0;
     private static TaskImplementation<Void> autoReconnectTask = null;
 
@@ -1014,6 +1014,10 @@ public class DataManager {
     }
 
     public static void getAndSyncDatabase(NotBountiesDatabase database) {
+        if (database.checkSyncInterval())
+            // recently synced
+            return;
+
         long startTime = System.currentTimeMillis();
         List<Bounty> databaseBounties;
         Map<UUID, PlayerStat> databaseStats;
