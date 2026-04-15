@@ -32,7 +32,7 @@ public class HeadFetcher {
     public static ItemStack getUnloadedHead(UUID uuid) {
         ItemStack head = savedHeads.getIfPresent(uuid);
         if (head != null)
-            return head;
+            return head.clone();
         head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         assert meta != null;

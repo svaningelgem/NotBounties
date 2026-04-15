@@ -11,6 +11,7 @@ import me.jadenp.notbounties.ui.gui.GUI;
 import me.jadenp.notbounties.ui.gui.GUIOptions;
 import me.jadenp.notbounties.ui.gui.PlayerGUInfo;
 import me.jadenp.notbounties.utils.LoggedPlayers;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +45,7 @@ public class HeadLoader extends CancelableTask{
             if (fetchedHeads[i] == null) {
                 ItemStack cachedHead = savedHeads.getIfPresent(queuedHead.uuid());
                 if (cachedHead != null) {
-                    fetchedHeads[i] = cachedHead;
+                    fetchedHeads[i] = copyItemText(queuedHead.itemStack(), cachedHead.clone());
                     headsToUpdate[i] = true;
                 } else {
                     if (SkinManager.isSkinLoaded(queuedHead.uuid())) {
@@ -54,7 +55,7 @@ public class HeadLoader extends CancelableTask{
                         if (!SkinManager.isMissingSkin(playerSkin)) {
                             // do not update head if the skin is missing.
                             headsToUpdate[i] = true;
-                            savedHeads.put(queuedHead.uuid(), head);
+                            savedHeads.put(queuedHead.uuid(), head.clone());
                         }
                     }
                 }
