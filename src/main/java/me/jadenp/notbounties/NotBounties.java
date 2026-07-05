@@ -476,7 +476,8 @@ public final class NotBounties extends JavaPlugin {
                 + ChatColor.YELLOW + " Latest Plugin Version: " + ChatColor.WHITE + getLatestVersion()
                 + ChatColor.YELLOW + " Server Version: " + ChatColor.WHITE + getServer().getVersion()
                 + ChatColor.YELLOW + " Debug Mode: " + ChatColor.WHITE + debug
-                + ChatColor.YELLOW + " Online Mode: " + ChatColor.WHITE + Bukkit.getOnlineMode());
+                + ChatColor.YELLOW + " Online Mode: " + ChatColor.WHITE + Bukkit.getOnlineMode()
+                + ChatColor.YELLOW + " Plugin Paused: " + ChatColor.WHITE + NotBounties.isPaused());
 
         TextComponent updateNotification = getUpdateNotificationInfo();
         sender.spigot().sendMessage(updateNotification);
