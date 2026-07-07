@@ -197,4 +197,6 @@ bounty-hunt:
     text: '&4Hunt for &c&l{player}&4! &7Time remaining: &f{time}'
   # Commands to be run when the bounty is claimed
   # You can use the {participant} placeholder to run a command for everyone participating
+  # Example: 'give {participant} diamond_sword 1' will be run for everyone who participated in the hunt at the end.
+  # Commands without the {participant} placeholder will only be run once.
   commands: []

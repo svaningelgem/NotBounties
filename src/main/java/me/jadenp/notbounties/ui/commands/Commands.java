@@ -7,6 +7,7 @@ import me.jadenp.notbounties.data.Bounty;
 import me.jadenp.notbounties.data.player_data.PlayerData;
 import me.jadenp.notbounties.data.Setter;
 import me.jadenp.notbounties.data.Whitelist;
+import me.jadenp.notbounties.features.settings.databases.NotBountiesDatabase;
 import me.jadenp.notbounties.features.settings.display.BountyHunt;
 import me.jadenp.notbounties.features.settings.display.BountyTracker;
 import me.jadenp.notbounties.features.settings.display.WantedTags;
@@ -39,10 +40,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -150,7 +153,7 @@ public class Commands implements CommandExecutor, TabCompleter {
         }
         Player parser = getParser(sender);
         if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("help") && (forcePermission || sender.hasPermission("notbounties.basic"))) {
+            if (args[0].equalsIgnoreCase("help") && (forcePermission || sender.hasPermission("notbounties.basic.help"))) {
                 int page;
                 if (args.length == 1) {
                     page = 1;
@@ -389,7 +392,34 @@ public class Commands implements CommandExecutor, TabCompleter {
                     sender.sendMessage("/bounty skin (player name/uuid)");
                     return false;
                 }
-
+            } else if (args[0].equalsIgnoreCase("setdefaultbroadcast") && (forcePermission || adminPermission)) {
+                if (args.length > 1) {
+                    PlayerData.BroadcastSettings settings;
+                    try {
+                        settings = PlayerData.BroadcastSettings.valueOf(args[1].toUpperCase());
+                    } catch (IllegalArgumentException ignored) {
+                        sender.sendMessage("/bounty setdefaultbroadcast (EXTENDED/SHORT/DISABLE)");
+                        return false;
+                    }
+                    File moneyFile = new File(NotBounties.getInstance().getDataFolder(), "settings" + File.separator + "money.yml");
+                    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(moneyFile);
+                    configuration.set("default-broadcast-setting", settings.name());
+                    try {
+                        configuration.save(moneyFile);
+                    } catch (IOException e) {
+                        sender.sendMessage(parse("Failed to modify money.yml file.", parser));
+                    }
+                    ConfigOptions.getMoney().setDefaultBroadcastSetting(settings);
+                    DataManager.getLocalData().setAllBroadcastSetting(settings);
+                    for (NotBountiesDatabase database : DataManager.getDatabases()) {
+                        database.setAllBroadcastSetting(settings);
+                    }
+                    sender.sendMessage("All player's broadcast settings have been set to " + settings.name() + ".");
+                    return true;
+                } else {
+                    sender.sendMessage("/bounty setdefaultbroadcast (EXTENDED/SHORT/DISABLE)");
+                    return false;
+                }
             } else if (args[0].equalsIgnoreCase("cleanEntities") && (forcePermission || sender.hasPermission("notbounties.cleanentities"))) {
                 if (!(sender instanceof Player)) {
                     if (!silent)
@@ -672,7 +702,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                         sender.sendMessage(parse(getPrefix() + getMessage("no-permission"), parser));
                     return false;
                 }
-            } else if ((args[0].equalsIgnoreCase("bdc") || args[0].equalsIgnoreCase("broadcast")) && (forcePermission || sender.hasPermission("notbounties.basic"))) {
+            } else if ((args[0].equalsIgnoreCase("bdc") || args[0].equalsIgnoreCase("broadcast")) && (forcePermission || sender.hasPermission("notbounties.basic.broadcast"))) {
                 if (sender instanceof Player player) {
                     PlayerData playerData = DataManager.getPlayerData(player.getUniqueId());
                     if (args.length > 1) {
@@ -1746,8 +1776,10 @@ public class Commands implements CommandExecutor, TabCompleter {
             trackerCommandHandler.tabComplete(sender, args, tab, adminPermission);
             immunityCommandHandler.tabComplete(sender, args, tab, adminPermission);
             if (args.length == 1) {
-                if (sender.hasPermission("notbounties.basic")) {
+                if (sender.hasPermission("notbounties.basic.help")) {
                     tab.add("help");
+                }
+                if (sender.hasPermission("notbounties.basic.broadcast")) {
                     tab.add("bdc");
                     tab.add("broadcast");
                 }
@@ -1787,6 +1819,7 @@ public class Commands implements CommandExecutor, TabCompleter {
                     tab.add("board");
                     tab.add("skin");
                     tab.add("item");
+                    tab.add("setdefaultbroadcast");
                     if (NotBounties.isPaused()) {
                         tab.add("unpause");
                     } else {
@@ -1868,13 +1901,17 @@ public class Commands implements CommandExecutor, TabCompleter {
                         tab.add("disable");
                     else
                         tab.add("enable");
-                } else if (args[0].equalsIgnoreCase("bdc") && sender.hasPermission("notbounties.basic")) {
+                } else if (args[0].equalsIgnoreCase("bdc") && sender.hasPermission("notbounties.basic.broadcast")) {
                     tab.add("disable");
                     tab.add("extended");
                     tab.add("short");
                 } else if (args[0].equalsIgnoreCase("challenges") && sender.hasPermission("notbounties.challenges") && ChallengeManager.isEnabled()) {
                     tab.add("claim");
                     tab.add("check");
+                } else if (args[0].equalsIgnoreCase("setdefaultbroadcast") && adminPermission) {
+                    tab.add("SHORT");
+                    tab.add("EXTENDED");
+                    tab.add("DISABLE");
                 } else if (!args[1].isEmpty() && tab.isEmpty() && sender instanceof Player player && NumberFormatting.getBountyItemMode() != BountyItemMode.DENY && NumberFormatting.isTabCompleteItems()) {
                     // They have started typing
                     try {

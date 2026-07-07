@@ -40,6 +40,11 @@ public class MySQL extends NotBountiesDatabase {
     }
 
     @Override
+    public void setAllBroadcastSetting(PlayerData.BroadcastSettings broadcastSetting) {
+
+    }
+
+    @Override
     protected ConfigurationSection readConfig() {
         ConfigurationSection configuration = super.readConfig();
         if (configuration == null)

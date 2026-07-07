@@ -256,6 +256,7 @@ help:
   basic:
     - '&1Bounty tax is currently: &5{tax}%'
     - '&1Whitelist cost is currently: {whitelist_cost} per player.'
+    - '&1Your broadcast setting is: &5{notification}'
     - '&9/bounty help &8- &dShows this message.'
     - '&9/bounty tutorial &8- &dShows a text tutorial.'
     - '&9/bounty bdc &8- &dToggles the bounty broadcast message.'

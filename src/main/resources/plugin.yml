@@ -125,10 +125,18 @@ permissions:
     default: true
     description: Use help, tutorial, and broadcast commands.
     children:
-      notbounties.basic.tutorial: true
+      - notbounties.basic.tutorial
+      - notbounties.basic.broadcast
+      - notbounties.basic.help
   notbounties.basic.tutorial:
     default: true
     description: Use the tutorial command.
+  notbounties.basic.broadcast:
+    default: true
+    description: Use the broadcast command.
+  notbounties.basic.help:
+    default: true
+    description: Use the help command.
   notbounties.removeset:
     default: false
     description: Remove bounties you set.

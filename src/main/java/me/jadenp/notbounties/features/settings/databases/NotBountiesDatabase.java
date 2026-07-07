@@ -52,6 +52,8 @@ public abstract class NotBountiesDatabase implements Comparable<NotBountiesDatab
         reconnectAttempts = 0;
     }
 
+    public abstract void setAllBroadcastSetting(PlayerData.BroadcastSettings broadcastSetting);
+
     /**
      * Add stats of a player to the database
      * @param uuid UUID of the player
