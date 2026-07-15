@@ -1,5 +1,7 @@
 package me.jadenp.notbounties.features.settings.auto_bounties;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import me.jadenp.notbounties.NotBounties;
 import me.jadenp.notbounties.data.Bounty;
 import me.jadenp.notbounties.data.Whitelist;
@@ -12,8 +14,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static me.jadenp.notbounties.utils.BountyManager.*;
 import static me.jadenp.notbounties.utils.BountyManager.getBounty;
@@ -52,7 +57,7 @@ public class MurderBounties {
      * A map of the killer and the player they have killed with the time they were killed.
      * (Killer, (Player, Time))
      */
-    private static Map<UUID, Map<UUID, Long>> playerKills = new HashMap<>();
+    private static final Map<UUID, Cache<UUID, Long>> playerKills = new HashMap<>();
 
     private static List<String> commands;
 
@@ -64,20 +69,13 @@ public class MurderBounties {
         exclusiveMurderOrTrickle = murderBounties.getBoolean("exclusive-murder-or-trickle");
         allowNPC = murderBounties.getBoolean("allow-npc");
         commands = murderBounties.getStringList("commands");
+        playerKills.clear();
     }
-
     /**
      * Removes old player kills from playerKills HashMap
      */
     public static void cleanPlayerKills() {
-        Map<UUID, Map<UUID, Long>> updatedMap = new HashMap<>();
-        for (Map.Entry<UUID, Map<UUID, Long>> entry : playerKills.entrySet()) {
-            Map<UUID, Long> deaths = entry.getValue();
-            deaths.entrySet().removeIf(entry1 -> entry1.getValue() < System.currentTimeMillis() - murderCooldown * 1000L);
-            updatedMap.put(entry.getKey(), deaths);
-        }
-        updatedMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-        playerKills = updatedMap;
+        playerKills.entrySet().removeIf(entry -> entry.getValue().size() == 0);
     }
 
     private static boolean canTriggerMurderBounty(Player player, Player killer) {
@@ -94,18 +92,28 @@ public class MurderBounties {
     private static boolean hasMurderImmunity(Player player, Player killer, double bountyIncrease) {
         Bounty bounty = getBounty(player.getUniqueId());
         double bountyAmount = bounty != null ? bounty.getTotalBounty() : 0;
-        return !ConfigOptions.getAutoBounties().isOverrideImmunity() // immunity is not overridden
+        if (!ConfigOptions.getAutoBounties().isOverrideImmunity() // immunity is not overridden
                 && ( // check external immunity
-                        ImmunityManager.getAppliedImmunity(killer.getUniqueId(), bountyIncrease) != ImmunityManager.ImmunityType.DISABLE // has regular immunity
+                ImmunityManager.getAppliedImmunity(killer.getUniqueId(), bountyIncrease) != ImmunityManager.ImmunityType.DISABLE // has regular immunity
                         || hasPermissionImmunity(killer) // has permission immunity
                         || (exclusiveMurderOrTrickle && TrickleBounties.getBountyTransferRatio(killer) * bountyAmount > bountyIncrease) // trickle bounty will be used instead
-                    )
-                && !( // check internal immunity
-                        (!playerKills.containsKey(killer.getUniqueId()) ||
-                        !playerKills.get(killer.getUniqueId()).containsKey(player.getUniqueId()) ||
-                        playerKills.get(killer.getUniqueId()).get(player.getUniqueId()) < System.currentTimeMillis() - murderCooldown * 1000L) // check for cooldown
-                        && (!murderExcludeClaiming || bounty == null || bounty.getTotalDisplayBounty(killer) < 0.01) // check if claiming a bounty is not allowed
-                    );
+                )
+        ) {
+            return true;
+        }
+        return hasMurderCooldown(player, killer, bounty);
+    }
+
+    /**
+     * Check if the killer has a cooldown on the player.
+     * @param player Player that was killed.
+     * @param killer Player that killed.
+     * @param playerBounty Bounty of the player that was killed.
+     * @return True if the killer has a cooldown on the player.
+     */
+    private static boolean hasMurderCooldown(Player player, Player killer, @Nullable Bounty playerBounty) {
+        return (playerKills.containsKey(killer.getUniqueId()) && playerKills.get(killer.getUniqueId()).getIfPresent(player.getUniqueId()) != null) // murder cooldown is present
+                && (!murderExcludeClaiming || playerBounty == null || playerBounty.getTotalDisplayBounty(killer) < 0.01); // check if player has a bounty
     }
 
     /**
@@ -130,7 +138,7 @@ public class MurderBounties {
             }
             if (!commands.isEmpty())
                 ActionCommands.executeCommands(player, killer, commands);
-            Map<UUID, Long> kills = playerKills.containsKey(killer.getUniqueId()) ? playerKills.get(killer.getUniqueId()) : new HashMap<>();
+            Cache<UUID, Long> kills = playerKills.computeIfAbsent(killer.getUniqueId(), k -> CacheBuilder.newBuilder().expireAfterWrite(murderCooldown, TimeUnit.SECONDS).build());
             kills.put(player.getUniqueId(), System.currentTimeMillis());
             playerKills.put(killer.getUniqueId(), kills);
             return exclusiveMurderOrTrickle;
